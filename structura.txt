@@ -1,0 +1,9 @@
+psytest-bot/
+├─ app/
+│  ├─ __init__.py
+│  ├─ main.py          # вход в приложение (бот)
+│  ├─ questions.py     # вопросы + логика подсчета
+├─ requirements.txt
+├─ Dockerfile
+├─ docker-compose.yml
+└─ .env                # BOT_TOKEN=
