@@ -18,12 +18,13 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-from app.db import init_db, save_user
+from app.db import init_db, save_user, get_user_first_name
 from app.promo import schedule_promo
 from .questions import QUESTIONS, interpret_score, get_result_image_name
 
 
 logging.basicConfig(level=logging.INFO)
+admin_id = int(os.getenv("ADMIN_ID"))
 
 
 @dataclass
@@ -174,6 +175,7 @@ async def start_test_callback(callback: CallbackQuery) -> None:
         )
     )
 
+    await bot.send_message(admin_id, f"Новый пользователь-{get_user_first_name} начал проходить тест.")
     # Приветствие теста
     await callback.message.answer(
         (
