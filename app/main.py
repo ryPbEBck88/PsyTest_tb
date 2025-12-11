@@ -169,7 +169,21 @@ async def start_test_callback(callback: CallbackQuery) -> None:
 
     # Уведомляем хозяйку бота (ADMIN_ID должен быть в .env)
     admin_id = int(os.getenv("ADMIN_ID"))
-    await bot.send_message(admin_id, f"Новый пользователь начал проходить тест: {user_id}")
+
+    username = callback.from_user.username
+    full_name = callback.from_user.full_name or ""
+
+    if username:
+        user_label = f"@{username}"
+    elif full_name:
+        user_label = full_name
+    else:
+        user_label = f"ID: {user_id}"
+
+    await bot.send_message(
+        admin_id,
+        f"Новый пользователь начал проходить тест: {user_label}"
+    )
 
 
     # Фоновая задача с отложенной рекламой
