@@ -20,3 +20,9 @@ env/
 # OS garbage
 .DS_Store
 Thumbs.db
+
+# База данных
+data/
+*.db
+*.sqlite3
+*.sqlite

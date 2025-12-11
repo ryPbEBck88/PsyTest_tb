@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot
 from app.db import is_promo_sent, mark_promo_sent, get_user_first_name
 
-PROMO_DELAY_SECONDS = 30  # 24 часа
+PROMO_DELAY_SECONDS = 24 * 60 * 60  # 24 часа
 
 
 async def schedule_promo(bot: Bot, chat_id: int, telegram_id: int):
