@@ -162,9 +162,15 @@ async def start_test_callback(callback: CallbackQuery) -> None:
     Здесь запускаем сессию теста, рекламу и задаём первый вопрос.
     """
     user_id = callback.from_user.id
+    bot = callback.message.bot
 
     # Стартуем сессию теста
     SESSIONS[user_id] = UserSession(current_index=0, score=0)
+
+    # Уведомляем хозяйку бота (ADMIN_ID должен быть в .env)
+    admin_id = int(os.getenv("ADMIN_ID"))
+    await bot.send_message(admin_id, f"Новый пользователь начал проходить тест: {user_id}")
+
 
     # Фоновая задача с отложенной рекламой
     asyncio.create_task(
@@ -175,7 +181,6 @@ async def start_test_callback(callback: CallbackQuery) -> None:
         )
     )
 
-    await bot.send_message(admin_id, f"Новый пользователь-{get_user_first_name} начал проходить тест.")
     # Приветствие теста
     await callback.message.answer(
         (
