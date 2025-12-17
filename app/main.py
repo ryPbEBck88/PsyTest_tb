@@ -267,6 +267,8 @@ async def answer_handler(callback: CallbackQuery) -> None:
 
         # 1) Фото с короткой подписью
         await callback.message.answer_photo(photo=photo, caption=caption)
+
+        await asyncio.sleep(2)
         # 2) Полный текст интерпретации
         await callback.message.answer(result_text)
         # 3) Возвращаем нижнюю кнопку "Меню"
