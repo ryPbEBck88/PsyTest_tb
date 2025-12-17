@@ -18,7 +18,7 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-from app.db import init_db, save_user, get_user_first_name
+from app.db import init_db, save_user, user_exists
 from app.promo import schedule_promo
 from .questions import QUESTIONS, interpret_score, get_result_image_name
 
@@ -180,10 +180,11 @@ async def start_test_callback(callback: CallbackQuery) -> None:
     else:
         user_label = f"ID: {user_id}"
 
-    await bot.send_message(
-        admin_id,
-        f"Новый пользователь начал проходить тест: {user_label}"
-    )
+    if not user_exists(user_id):
+        await bot.send_message(
+            admin_id,
+            f"Новый пользователь начал проходить тест: {user_label}"
+        )
 
 
     # Фоновая задача с отложенной рекламой

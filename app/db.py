@@ -1,4 +1,3 @@
-# db.py
 import sqlite3
 from datetime import datetime
 
@@ -76,3 +75,11 @@ def get_user_first_name(telegram_id: int) -> str:
     if row and row[0]:
         return row[0]
     return "друг"  # fallback, если имени нет
+
+# В db.py добавляем функцию проверки
+def user_exists(telegram_id: int) -> bool:
+    """Проверяет, существует ли пользователь в БД"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM users WHERE telegram_id = ?", (telegram_id,))
+    return cursor.fetchone() is not None
