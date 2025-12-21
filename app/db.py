@@ -64,6 +64,7 @@ def is_promo_sent(telegram_id: int) -> bool:
     conn.close()
     return bool(row and row[0])
 
+
 def get_user_first_name(telegram_id: int) -> str:
     conn = sqlite3.connect(DB_PATH)
     cur = conn.execute(
@@ -77,6 +78,7 @@ def get_user_first_name(telegram_id: int) -> str:
         return row[0]
     return "друг"  # fallback, если имени нет
 
+
 # В db.py добавляем функцию проверки
 def user_exists(telegram_id: int) -> bool:
     """Проверяет, существует ли пользователь в БД"""
@@ -86,3 +88,13 @@ def user_exists(telegram_id: int) -> bool:
     exists = cursor.fetchone() is not None
     conn.close()
     return exists
+
+
+def update_score(db_path: str, telegram_id: int, score: int):
+    with sqlite3.connect(db_path) as con:
+        con.execute(
+            "UPDATE users SET score = ? WHERE telegram_id = ?",
+            (score, telegram_id),
+        )
+        con.commit()
+        
