@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import random
 from dataclasses import dataclass
 
 from aiogram import Bot, Dispatcher, F
@@ -22,9 +23,10 @@ from app.db import init_db, save_user, user_exists, update_score
 from app.promo import schedule_promo
 from .questions import QUESTIONS, interpret_score, get_result_image_name
 
-
 logging.basicConfig(level=logging.INFO)
 admin_id = int(os.getenv("ADMIN_ID"))
+
+LETTERS = ["А", "Б", "В", "Г"]
 
 
 @dataclass
@@ -63,32 +65,15 @@ def build_menu_inline() -> InlineKeyboardMarkup:
     )
 
 
-def build_question_keyboard(q_index: int) -> InlineKeyboardMarkup:
+def build_question_text_and_kb(q_index: int) -> tuple[str, InlineKeyboardMarkup]:
     """
-    Клавиатура с вариантами ответов А/Б/В/Г
-    """
-    question = QUESTIONS[q_index]
-    letters = ["А", "Б", "В", "Г"]
-
-    rows = [
-        [
-            InlineKeyboardButton(
-                text=letters[i],
-                callback_data=f"answer:{opt.points}",
-            )
-        ]
-        for i, opt in enumerate(question.options)
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-async def send_question(message: Message, q_index: int) -> None:
-    """
-    Отправка вопроса (новым сообщением)
+    Строит текст вопроса и инлайн-клавиатуру из одного перемешанного порядка вариантов.
+    Очки привязаны к callback_data кнопки, а не к позиции. [web:57]
     """
     question = QUESTIONS[q_index]
-    kb = build_question_keyboard(q_index)
-    letters = ["А", "Б", "В", "Г"]
+
+    options = list(question.options)
+    random.shuffle(options)  # shuffle in-place, поэтому работаем с копией [web:28]
 
     lines: list[str] = [
         f"Вопрос {q_index + 1}/{len(QUESTIONS)}",
@@ -97,10 +82,30 @@ async def send_question(message: Message, q_index: int) -> None:
         "",
     ]
 
-    for i, opt in enumerate(question.options):
-        lines.append(f"{letters[i]}) {opt.text}")
+    for i, opt in enumerate(options):
+        lines.append(f"{LETTERS[i]}) {opt.text}")
 
     text = "\n".join(lines)
+
+    rows = [
+        [
+            InlineKeyboardButton(
+                text=LETTERS[i],
+                callback_data=f"answer:{opt.points}",
+            )
+        ]
+        for i, opt in enumerate(options)
+    ]
+    kb = InlineKeyboardMarkup(inline_keyboard=rows)
+
+    return text, kb
+
+
+async def send_question(message: Message, q_index: int) -> None:
+    """
+    Отправка вопроса (новым сообщением)
+    """
+    text, kb = build_question_text_and_kb(q_index)
     await message.answer(text, reply_markup=kb)
 
 
@@ -108,22 +113,8 @@ async def send_question_cb(callback: CallbackQuery, q_index: int) -> None:
     """
     Обновление уже существующего сообщения с вопросом
     """
-    question = QUESTIONS[q_index]
-    kb = build_question_keyboard(q_index)
-    letters = ["А", "Б", "В", "Г"]
-
-    lines: list[str] = [
-        f"Вопрос {q_index + 1}/{len(QUESTIONS)}",
-        "",
-        question.text,
-        "",
-    ]
-
-    for i, opt in enumerate(question.options):
-        lines.append(f"{letters[i]}) {opt.text}")
-
-    text = "\n".join(lines)
-    await callback.message.edit_text(text, reply_markup=kb)
+    text, kb = build_question_text_and_kb(q_index)
+    await callback.message.edit_text(text, reply_markup=kb)  # редактируем текст+кнопки [web:57]
 
 
 # -------------------- HANDLERS --------------------
@@ -185,7 +176,6 @@ async def start_test_callback(callback: CallbackQuery) -> None:
             admin_id,
             f"Новый пользователь начал проходить тест: {user_label}"
         )
-
 
     # Фоновая задача с отложенной рекламой
     asyncio.create_task(
