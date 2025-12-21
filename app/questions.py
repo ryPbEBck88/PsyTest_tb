@@ -101,7 +101,6 @@ def interpret_score(score: int) -> str:
     """
 
     if score <= 17:
-        level = "ЗЕЛЕНЫЙ УРОВЕНЬ"
         text = (
 """
 Привет! ✨
@@ -131,7 +130,6 @@ def interpret_score(score: int) -> str:
         )
 
     elif score <= 34:
-        level = "ЖЕЛТЫЙ УРОВЕНЬ"
         text = (
 """
 Привет! ✨
@@ -163,7 +161,6 @@ def interpret_score(score: int) -> str:
         )
 
     elif score <= 52:
-        level = "КРАСНЫЙ УРОВЕНЬ"
         text = (
 """
 Привет! ✨
@@ -201,7 +198,6 @@ def interpret_score(score: int) -> str:
         )
 
     else:
-        level = "МИГАЮЩИЙ КРАСНЫЙ"
         text = (
 """
 Привет! ✨
@@ -248,8 +244,6 @@ P.S. Помни эти телефоны (Россия):
     # итоговое сообщение
     return f"{text}"
 
-
-    return f"{level}\n\nТвои баллы: {score}\n\n{text}{disclaimer}"
 
 def get_result_image_name(score: int) -> str:
     """

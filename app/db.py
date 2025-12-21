@@ -15,7 +15,8 @@ def init_db():
             first_name TEXT,
             last_name TEXT,
             created_at TEXT,
-            promo_sent INTEGER DEFAULT 0
+            promo_sent INTEGER DEFAULT 0,
+            score INTEGER DEFAULT 0
         );
         """
     )
@@ -82,4 +83,6 @@ def user_exists(telegram_id: int) -> bool:
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM users WHERE telegram_id = ?", (telegram_id,))
-    return cursor.fetchone() is not None
+    exists = cursor.fetchone() is not None
+    conn.close()
+    return exists

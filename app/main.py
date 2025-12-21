@@ -219,6 +219,7 @@ async def answer_handler(callback: CallbackQuery) -> None:
     """
     user_id = callback.from_user.id
     session = SESSIONS.get(user_id)
+    bot = callback.message.bot
 
     if session is None:
         # Если по какой-то причине сессии нет — создаём новую
@@ -278,6 +279,10 @@ async def answer_handler(callback: CallbackQuery) -> None:
             reply_markup=get_main_keyboard(),
         )
 
+        await bot.send_message(
+            admin_id,
+            f"Пользователь {callback.from_user.username}, результат - {score}"
+        )
         await callback.answer()
         return
 
