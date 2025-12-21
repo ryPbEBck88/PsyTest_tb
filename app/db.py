@@ -90,11 +90,10 @@ def user_exists(telegram_id: int) -> bool:
     return exists
 
 
-def update_score(db_path: str, telegram_id: int, score: int):
-    with sqlite3.connect(db_path) as con:
+def update_score(telegram_id: int, score: int):
+    with sqlite3.connect(DB_PATH) as con:
         con.execute(
             "UPDATE users SET score = ? WHERE telegram_id = ?",
             (score, telegram_id),
         )
         con.commit()
-        

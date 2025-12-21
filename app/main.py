@@ -18,7 +18,7 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-from app.db import init_db, save_user, user_exists
+from app.db import init_db, save_user, user_exists, update_score
 from app.promo import schedule_promo
 from .questions import QUESTIONS, interpret_score, get_result_image_name
 
@@ -283,6 +283,7 @@ async def answer_handler(callback: CallbackQuery) -> None:
             admin_id,
             f"Пользователь {callback.from_user.username}, результат - {score}"
         )
+        update_score(user_id, score)
         await callback.answer()
         return
 
