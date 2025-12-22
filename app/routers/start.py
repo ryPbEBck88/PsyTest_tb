@@ -7,6 +7,7 @@ from app.keyboards.reply import get_main_keyboard
 
 router = Router(name=__name__)
 
+
 @router.message(CommandStart())
 async def start_handler(message: Message) -> None:
     """

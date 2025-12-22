@@ -1,45 +1,41 @@
 D:.
-│  .env
-│  docker-compose.yml
-│  requirements.txt
+│   .env
+│   .env.example
+│   .gitignore
+│   docker-compose.yml
+│   Dockerfile
+│   plan_refactoring.txt
+│   requirements.txt
+│   structura.txt
 │
-├─app
-│  │  __init__.py
-│  │  main.py                # только запуск: Bot/Dispatcher + include_router
-│  │
-│  ├─core
-│  │  ├─config.py            # чтение env (BOT_TOKEN, ADMIN_ID)
-│  │  └─logging.py           # настройка логирования
-│  │
-│  ├─db
-│  │  ├─__init__.py
-│  │  ├─sqlite.py            # подключение к SQLite / init_db
-│  │  └─users_repo.py        # save_user, user_exists, get_user_first_name...
-│  │
-│  ├─routers
-│  │  ├─__init__.py
-│  │  ├─start.py             # /start
-│  │  ├─menu.py              # "Меню" + start_test
-│  │  ├─test.py              # вопросы/ответы/финал теста
-│  │  └─result.py            # "прочитать полностью" / "далее"
-│  │
-│  ├─services
-│  │  ├─test_service.py      # interpret_score, level, preview/full text
-│  │  ├─promo_service.py     # обёртка над schedule_promo
-│  │  └─notify_service.py    # уведомление админу (только новый пользователь)
-│  │
-│  ├─keyboards
-│  │  ├─reply.py             # get_main_keyboard()
-│  │  └─inline.py            # меню, ответы, "прочитать полностью"
-│  │
-│  ├─data
-│  │  └─questions.py         # QUESTIONS (+ модели, если надо)
-│  │
-│  └─images
-│     blinking.jpg
-│     green.jpg
-│     red.jpg
-│     yellow.jpg
-│
-└─data
-   bot.db
+├───app
+│   │   db.py
+│   │   main.py
+│   │   promo.py
+│   │   questions.py
+│   │   __init__.py
+│   │
+│   ├───core
+│   │       config.py
+│   │       logging.py
+│   │
+│   ├───data
+│   ├───db
+│   ├───keyboards
+│   │       inline.py
+│   │       reply.py
+│   │
+│   ├───routers
+│   │   │   menu.py
+│   │   │   start.py
+│   │   │   test.py
+│   │   │
+│   │   └───images
+│   │           blinking.jpg
+│   │           green.jpg
+│   │           red.jpg
+│   │           yellow.jpg
+│   │
+│   └───services
+└───data
+        bot.db
