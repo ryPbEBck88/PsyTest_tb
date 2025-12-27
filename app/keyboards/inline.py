@@ -5,6 +5,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from app.questions import QUESTIONS
 
 LETTERS = ["А", "Б", "В", "Г"]
+RESULT_PAGE_CB_PREFIX = "result_more:"
 
 
 def build_menu_inline() -> InlineKeyboardMarkup:
@@ -57,3 +58,17 @@ def build_question_text_and_kb(q_index: int) -> tuple[str, InlineKeyboardMarkup]
     kb = InlineKeyboardMarkup(inline_keyboard=rows)
 
     return text, kb
+
+
+def build_result_more_kb(next_page: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Подробнее ▶", callback_data=f"{RESULT_PAGE_CB_PREFIX}{next_page}")]
+        ]
+    )
+
+def build_result_kb_for_page(page: int, total_pages: int) -> InlineKeyboardMarkup | None:
+    # если дальше страниц нет — клавиатуру не показываем
+    if page >= total_pages - 1:
+        return None
+    return build_result_more_kb(page + 1)

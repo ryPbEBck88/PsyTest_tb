@@ -40,7 +40,7 @@ async def start_test_callback(callback: CallbackQuery) -> None:
     if username:
         user_label = f"@{username}"
     elif full_name:
-        user_label = full_name
+        user_label = f'<a href="tg://user?id={user_id}">@{full_name}</a>'
     else:
         user_label = f"ID: {user_id}"
 
