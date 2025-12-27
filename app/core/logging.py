@@ -20,9 +20,61 @@ class TelegramLogHandler(logging.Handler):
         """Устанавливает очередь для отправки сообщений"""
         self._queue = queue
     
+    def _is_critical_error(self, record: logging.LogRecord) -> bool:
+        """Проверяет, является ли ошибка критичной"""
+        # CRITICAL уровень - всегда критичный
+        if record.levelno >= logging.CRITICAL:
+            return True
+        
+        # ERROR уровень - проверяем по типу ошибки
+        if record.levelno >= logging.ERROR:
+            # Игнорируем некритичные сетевые ошибки
+            message = record.getMessage().lower()
+            exc_info = record.exc_info
+            
+            # Список некритичных ошибок, которые можно игнорировать
+            non_critical_patterns = [
+                'timeout',
+                'request timeout',
+                'connection timeout',
+                'network',
+                'telegram network error',
+                'telegram server error',
+                'http client says',
+                'telegram server says',
+                'bad gateway',
+                'failed to fetch updates',
+                'sleep for',
+                'try again',
+            ]
+            
+            # Проверяем сообщение
+            for pattern in non_critical_patterns:
+                if pattern in message:
+                    return False
+            
+            # Проверяем тип исключения
+            if exc_info and exc_info[0]:
+                exc_type_name = exc_info[0].__name__.lower()
+                # Игнорируем сетевые ошибки Telegram API
+                non_critical_exceptions = [
+                    'telegramnetworkerror',
+                    'telegramservererror',
+                    'timeouterror',
+                    'connectionerror',
+                ]
+                if any(exc in exc_type_name for exc in non_critical_exceptions):
+                    return False
+        
+        return True
+    
     def emit(self, record: logging.LogRecord) -> None:
         """Отправляет сообщение об ошибке в Telegram через очередь"""
         try:
+            # Проверяем, критична ли ошибка
+            if not self._is_critical_error(record):
+                return
+            
             message = self.format(record)
             
             # Ограничиваем длину сообщения (максимум 4096 символов для Telegram)
@@ -46,9 +98,15 @@ class TelegramLogHandler(logging.Handler):
             # Экранируем HTML символы для безопасности
             escaped_text = html.escape(text)
             
+            # Определяем заголовок по уровню ошибки из текста
+            if "CRITICAL" in text.upper():
+                level_name = "🔴 Критическая ошибка"
+            else:
+                level_name = "⚠️ Ошибка"
+            
             await self.bot.send_message(
                 chat_id=self.chat_id,
-                text=f"<b>Ошибка в боте:</b>\n\n<code>{escaped_text}</code>",
+                text=f"<b>{level_name} в боте:</b>\n\n<code>{escaped_text}</code>",
                 parse_mode="HTML"
             )
         except Exception:
