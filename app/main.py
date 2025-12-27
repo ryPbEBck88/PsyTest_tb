@@ -7,7 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from app.db import init_db
-from app.routers import start, menu, test
+from app.routers import start, menu, test, admin
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,6 +23,7 @@ async def main() -> None:
     dp.include_router(start.router)
     dp.include_router(menu.router)
     dp.include_router(test.router)
+    dp.include_router(admin.router)
 
     logging.info("Bot started")
     await dp.start_polling(bot)

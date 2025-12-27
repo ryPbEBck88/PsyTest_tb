@@ -26,6 +26,11 @@ def init_db():
 
 def save_user(message):
     """Сохраняем пользователя, если его ещё нет."""
+    save_user_from_user(message.from_user)
+
+
+def save_user_from_user(user):
+    """Сохраняет пользователя из объекта User (from aiogram.types.User)."""
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """
@@ -33,10 +38,10 @@ def save_user(message):
         VALUES (?, ?, ?, ?, ?)
         """,
         (
-            message.from_user.id,
-            message.from_user.username,
-            message.from_user.first_name,
-            message.from_user.last_name,
+            user.id,
+            user.username,
+            user.first_name,
+            user.last_name,
             datetime.utcnow().isoformat(),
         ),
     )
@@ -97,3 +102,18 @@ def update_score(telegram_id: int, score: int):
             (score, telegram_id),
         )
         con.commit()
+
+
+def get_recent_users(limit: int = 10) -> list[tuple]:
+    """
+    Получает последних N пользователей, отсортированных по дате создания (новые первые)
+    Возвращает список кортежей: (telegram_id, username, first_name, last_name, created_at, score)
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.execute(
+        "SELECT telegram_id, username, first_name, last_name, created_at, score FROM users ORDER BY created_at DESC LIMIT ?",
+        (limit,),
+    )
+    users = cur.fetchall()
+    conn.close()
+    return users

@@ -8,20 +8,28 @@ LETTERS = ["А", "Б", "В", "Г"]
 RESULT_PAGE_CB_PREFIX = "result_more:"
 
 
-def build_menu_inline() -> InlineKeyboardMarkup:
+def build_menu_inline(is_admin: bool = False) -> InlineKeyboardMarkup:
     """
     Инлайн-меню под сообщением
     """
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="Пройти тест «Твой личный светофор»",
-                    callback_data="start_test",
-                )
-            ],
-        ]
-    )
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                text="Пройти тест «Твой личный светофор»",
+                callback_data="start_test",
+            )
+        ],
+    ]
+    
+    if is_admin:
+        keyboard.append([
+            InlineKeyboardButton(
+                text="📊 Последние пользователи",
+                callback_data="admin_recent_users",
+            )
+        ])
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
 def build_question_text_and_kb(q_index: int) -> tuple[str, InlineKeyboardMarkup]:

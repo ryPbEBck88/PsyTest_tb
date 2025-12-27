@@ -6,17 +6,22 @@ from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
 from app.keyboards.inline import build_menu_inline
 from app.promo import schedule_promo
-from app.db import user_exists
+from app.db import user_exists, save_user_from_user
 
 # сессия и отправка первого вопроса живут в test.py
 from app.routers.test import SESSIONS, UserSession, send_question
 
 router = Router()
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 
 @router.message(F.text == "Меню")
 async def menu_handler(message: Message) -> None:
-    kb = build_menu_inline()
+    # Сохраняем пользователя в базу, если его ещё нет
+    save_user_from_user(message.from_user)
+    
+    is_admin = message.from_user.id == ADMIN_ID
+    kb = build_menu_inline(is_admin=is_admin)
     await message.answer(
         "Меню:\n\nВыбери действие:",
         reply_markup=kb,
@@ -27,6 +32,9 @@ async def menu_handler(message: Message) -> None:
 async def start_test_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     bot = callback.message.bot
+
+    # Сохраняем пользователя в базу, если его ещё нет
+    save_user_from_user(callback.from_user)
 
     # Стартуем сессию теста
     SESSIONS[user_id] = UserSession(current_index=0, score=0)
